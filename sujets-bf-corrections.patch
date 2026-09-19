@@ -1,0 +1,595 @@
+diff --git a/app/connexion/page.tsx b/app/(site)/connexion/page.tsx
+similarity index 81%
+rename from app/connexion/page.tsx
+rename to app/(site)/connexion/page.tsx
+index e7ffe98..db13b35 100644
+--- a/app/connexion/page.tsx
++++ b/app/(site)/connexion/page.tsx
+@@ -33,7 +33,7 @@ export default function ConnexionPage() {
+   }
+ 
+   return (
+-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
++    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6">
+       <h1 className="text-2xl font-bold">Connexion</h1>
+       <p className="mt-1 text-sm text-slate-600">
+         Accédez à votre compte pour continuer.
+@@ -46,7 +46,7 @@ export default function ConnexionPage() {
+           placeholder="Email"
+           value={email}
+           onChange={(e) => setEmail(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+         <input
+           type="password"
+@@ -54,7 +54,7 @@ export default function ConnexionPage() {
+           placeholder="Mot de passe"
+           value={password}
+           onChange={(e) => setPassword(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+ 
+         {error && <p className="text-sm text-red-600">{error}</p>}
+@@ -62,7 +62,7 @@ export default function ConnexionPage() {
+         <button
+           type="submit"
+           disabled={loading}
+-          className="w-full rounded-md bg-blue-600 py-2.5 font-medium text-white disabled:opacity-60"
++          className="w-full rounded-md bg-brand py-2.5 font-medium text-white transition hover:bg-brand-deep disabled:opacity-60"
+         >
+           {loading ? 'Connexion…' : 'Se connecter'}
+         </button>
+@@ -70,8 +70,8 @@ export default function ConnexionPage() {
+ 
+       <p className="mt-4 text-sm text-slate-600">
+         Pas de compte ?{' '}
+-        <Link href="/inscription" className="text-blue-600">
+-          S'inscrire
++        <Link href="/inscription" className="font-medium text-brand-deep hover:underline">
++          S&apos;inscrire
+         </Link>
+       </p>
+     </main>
+diff --git a/app/contribuer/page.tsx b/app/(site)/contribuer/page.tsx
+similarity index 100%
+rename from app/contribuer/page.tsx
+rename to app/(site)/contribuer/page.tsx
+diff --git a/app/inscription/page.tsx b/app/(site)/inscription/page.tsx
+similarity index 50%
+rename from app/inscription/page.tsx
+rename to app/(site)/inscription/page.tsx
+index 9dc43b8..4968a7c 100644
+--- a/app/inscription/page.tsx
++++ b/app/(site)/inscription/page.tsx
+@@ -13,6 +13,11 @@ export default function InscriptionPage() {
+   const [confirmPassword, setConfirmPassword] = useState('');
+   const [error, setError] = useState<string | null>(null);
+   const [loading, setLoading] = useState(false);
++  // Après un signUp réussi, on affiche un écran "vérifiez vos mails" plutôt
++  // que de rediriger en silence — l'utilisateur doit savoir qu'un mail de
++  // confirmation vient de partir et qu'il doit cliquer dessus avant de
++  // pouvoir se connecter.
++  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+ 
+   async function handleSubmit(e: React.FormEvent) {
+     e.preventDefault();
+@@ -26,7 +31,7 @@ export default function InscriptionPage() {
+     setLoading(true);
+     const supabase = createClient();
+ 
+-    const { error } = await supabase.auth.signUp({
++    const { data, error } = await supabase.auth.signUp({
+       email,
+       password,
+       options: { data: { display_name: displayName } },
+@@ -39,11 +44,55 @@ export default function InscriptionPage() {
+       return;
+     }
+ 
+-    router.push('/connexion');
++    // Si Supabase a déjà ouvert une session (confirmation email désactivée
++    // côté projet), on peut aller directement à l'accueil connecté.
++    if (data.session) {
++      router.push('/');
++      router.refresh();
++      return;
++    }
++
++    setSubmittedEmail(email);
++  }
++
++  if (submittedEmail) {
++    return (
++      <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 text-center">
++        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand/10">
++          <svg
++            aria-hidden="true"
++            viewBox="0 0 24 24"
++            fill="none"
++            className="h-7 w-7 text-brand-deep"
++          >
++            <path
++              d="M3 7.5 12 13l9-5.5M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5Z"
++              stroke="currentColor"
++              strokeWidth="1.6"
++              strokeLinecap="round"
++              strokeLinejoin="round"
++            />
++          </svg>
++        </div>
++        <h1 className="mt-5 text-2xl font-bold">Vérifiez votre boîte mail</h1>
++        <p className="mt-2 text-slate-600">
++          Nous avons envoyé un lien de confirmation à{' '}
++          <span className="font-medium text-slate-900">{submittedEmail}</span>.
++          Ouvrez-le pour activer votre compte — pensez à regarder dans les
++          spams si vous ne le voyez pas d&apos;ici quelques minutes.
++        </p>
++        <Link
++          href="/connexion"
++          className="mt-6 text-sm font-medium text-brand-deep hover:underline"
++        >
++          Retour à la connexion
++        </Link>
++      </main>
++    );
+   }
+ 
+   return (
+-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
++    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6">
+       <h1 className="text-2xl font-bold">Créer un compte</h1>
+       <p className="mt-1 text-sm text-slate-600">
+         Rejoignez la communauté des contributeurs.
+@@ -56,7 +105,7 @@ export default function InscriptionPage() {
+           placeholder="Nom / Pseudonyme"
+           value={displayName}
+           onChange={(e) => setDisplayName(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+         <input
+           type="email"
+@@ -64,7 +113,7 @@ export default function InscriptionPage() {
+           placeholder="Email"
+           value={email}
+           onChange={(e) => setEmail(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+         <input
+           type="password"
+@@ -73,7 +122,7 @@ export default function InscriptionPage() {
+           placeholder="Mot de passe"
+           value={password}
+           onChange={(e) => setPassword(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+         <input
+           type="password"
+@@ -81,7 +130,7 @@ export default function InscriptionPage() {
+           placeholder="Confirmer le mot de passe"
+           value={confirmPassword}
+           onChange={(e) => setConfirmPassword(e.target.value)}
+-          className="w-full rounded-md border border-slate-300 px-3 py-2"
++          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+         />
+ 
+         {error && <p className="text-sm text-red-600">{error}</p>}
+@@ -89,7 +138,7 @@ export default function InscriptionPage() {
+         <button
+           type="submit"
+           disabled={loading}
+-          className="w-full rounded-md bg-blue-600 py-2.5 font-medium text-white disabled:opacity-60"
++          className="w-full rounded-md bg-brand py-2.5 font-medium text-white transition hover:bg-brand-deep disabled:opacity-60"
+         >
+           {loading ? 'Création…' : "S'inscrire"}
+         </button>
+@@ -97,7 +146,7 @@ export default function InscriptionPage() {
+ 
+       <p className="mt-4 text-sm text-slate-600">
+         Déjà un compte ?{' '}
+-        <Link href="/connexion" className="text-blue-600">
++        <Link href="/connexion" className="font-medium text-brand-deep hover:underline">
+           Se connecter
+         </Link>
+       </p>
+diff --git a/app/(site)/layout.tsx b/app/(site)/layout.tsx
+new file mode 100644
+index 0000000..265dc23
+--- /dev/null
++++ b/app/(site)/layout.tsx
+@@ -0,0 +1,15 @@
++import { SiteHeader } from '@/components/SiteHeader';
++import { SiteFooter } from '@/components/SiteFooter';
++
++// Layout partagé par toutes les pages publiques (accueil, connexion,
++// inscription, contribuer, mes-contributions). /admin a son propre shell
++// (sidebar) et n'utilise volontairement pas ce header/footer.
++export default function SiteLayout({ children }: { children: React.ReactNode }) {
++  return (
++    <div className="flex min-h-screen flex-col">
++      <SiteHeader />
++      <div className="flex-1">{children}</div>
++      <SiteFooter />
++    </div>
++  );
++}
+diff --git a/app/mes-contributions/page.tsx b/app/(site)/mes-contributions/page.tsx
+similarity index 94%
+rename from app/mes-contributions/page.tsx
+rename to app/(site)/mes-contributions/page.tsx
+index 890cc29..be3cc91 100644
+--- a/app/mes-contributions/page.tsx
++++ b/app/(site)/mes-contributions/page.tsx
+@@ -19,7 +19,7 @@ export default async function MesContributionsPage() {
+     <main className="mx-auto max-w-4xl px-6 py-12">
+       <div className="flex items-center justify-between">
+         <h1 className="text-2xl font-bold">Mes contributions</h1>
+-        <Link href="/contribuer" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white">
++        <Link href="/contribuer" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-deep">
+           Contribuer
+         </Link>
+       </div>
+diff --git a/app/page.tsx b/app/(site)/page.tsx
+similarity index 54%
+rename from app/page.tsx
+rename to app/(site)/page.tsx
+index be596f0..46282b5 100644
+--- a/app/page.tsx
++++ b/app/(site)/page.tsx
+@@ -3,43 +3,25 @@ import Link from 'next/link';
+ export default function HomePage() {
+   return (
+     <main>
+-      <header className="border-b border-slate-800 bg-slate-950 text-white">
+-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+-          <span className="text-lg font-semibold">Sujets BF</span>
+-          <nav className="flex items-center gap-4 text-sm">
+-            <Link href="/">Accueil</Link>
+-            <Link href="/connexion">Se connecter</Link>
+-            <Link
+-              href="/inscription"
+-              className="rounded-md bg-blue-600 px-3 py-1.5 font-medium"
+-            >
+-              S'inscrire
+-            </Link>
+-          </nav>
+-        </div>
+-      </header>
+-
+-      <section className="bg-slate-950 text-white">
++      <section className="bg-brand-deep text-white">
+         <div className="mx-auto max-w-6xl px-6 py-16">
+-          <h1 className="text-3xl font-bold leading-tight md:text-4xl">
+-            Aidez-nous à préserver les anciens{' '}
+-            <span className="text-blue-400">sujets scolaires</span> du Burkina
+-            Faso.
++          <h1 className="max-w-2xl text-3xl font-bold leading-tight md:text-4xl">
++            Aidez-nous à préserver les anciens sujets scolaires du Burkina Faso.
+           </h1>
+-          <p className="mt-4 max-w-2xl text-slate-300">
++          <p className="mt-4 max-w-2xl text-white/80">
+             Vous possédez un ancien sujet du CEP, du BEPC ou du BAC ? Envoyez-le.
+-            Chaque document sera vérifié avant d'être intégré aux archives.
++            Chaque document sera vérifié avant d&apos;être intégré aux archives.
+           </p>
+           <div className="mt-8 flex flex-wrap gap-3">
+             <Link
+               href="/contribuer"
+-              className="rounded-md bg-blue-600 px-5 py-2.5 font-medium"
++              className="rounded-md bg-brand px-5 py-2.5 font-medium text-brand-deep transition hover:bg-brand/90"
+             >
+               Contribuer
+             </Link>
+             <Link
+               href="/mes-contributions"
+-              className="rounded-md bg-slate-800 px-5 py-2.5 font-medium"
++              className="rounded-md border border-white/30 px-5 py-2.5 font-medium text-white transition hover:bg-white/10"
+             >
+               Mes contributions
+             </Link>
+diff --git a/components/ContributeForm.tsx b/components/ContributeForm.tsx
+index 11526b1..a6abad9 100644
+--- a/components/ContributeForm.tsx
++++ b/components/ContributeForm.tsx
+@@ -375,7 +375,7 @@ function StepIndicator({ step }: { step: Step }) {
+         <div key={s.n} className="flex items-center gap-2">
+           <span
+             className={`flex h-6 w-6 items-center justify-center rounded-full ${
+-              step >= s.n ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
++              step >= s.n ? 'bg-brand text-white' : 'bg-slate-200 text-slate-500'
+             }`}
+           >
+             {s.n}
+diff --git a/components/SiteFooter.tsx b/components/SiteFooter.tsx
+new file mode 100644
+index 0000000..a77673f
+--- /dev/null
++++ b/components/SiteFooter.tsx
+@@ -0,0 +1,9 @@
++export function SiteFooter() {
++  return (
++    <footer className="border-t border-slate-200 bg-white">
++      <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-slate-500">
++        Sujets BF — un projet communautaire pour préserver les sujets scolaires du Burkina Faso.
++      </div>
++    </footer>
++  );
++}
+diff --git a/components/SiteHeader.tsx b/components/SiteHeader.tsx
+new file mode 100644
+index 0000000..0365b89
+--- /dev/null
++++ b/components/SiteHeader.tsx
+@@ -0,0 +1,60 @@
++import Link from 'next/link';
++import { createClient } from '@/lib/supabase/server';
++
++/**
++ * Header commun à toutes les pages publiques (hors /admin, qui a son
++ * propre shell). Avant, seule la landing page avait un header codé en
++ * dur — les autres pages (connexion, inscription…) n'en avaient aucun,
++ * ce qui cassait la navigation et l'identité visuelle du site.
++ */
++export async function SiteHeader() {
++  const supabase = createClient();
++  const {
++    data: { user },
++  } = await supabase.auth.getUser();
++
++  return (
++    <header className="border-b border-brand-deep/20 bg-brand-deep text-white">
++      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
++        <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight">
++          <span aria-hidden="true" className="text-brand">◆</span>
++          Sujets BF
++        </Link>
++
++        <nav className="flex items-center gap-5 text-sm">
++          <Link href="/" className="hidden text-white/80 transition hover:text-white sm:inline">
++            Accueil
++          </Link>
++          {user ? (
++            <>
++              <Link
++                href="/mes-contributions"
++                className="hidden text-white/80 transition hover:text-white sm:inline"
++              >
++                Mes contributions
++              </Link>
++              <Link
++                href="/contribuer"
++                className="rounded-md bg-brand px-3 py-1.5 font-medium text-brand-deep transition hover:bg-brand/90"
++              >
++                Contribuer
++              </Link>
++            </>
++          ) : (
++            <>
++              <Link href="/connexion" className="text-white/80 transition hover:text-white">
++                Se connecter
++              </Link>
++              <Link
++                href="/inscription"
++                className="rounded-md bg-brand px-3 py-1.5 font-medium text-brand-deep transition hover:bg-brand/90"
++              >
++                S&apos;inscrire
++              </Link>
++            </>
++          )}
++        </nav>
++      </div>
++    </header>
++  );
++}
+diff --git a/lib/storage/GoogleDriveProvider.ts b/lib/storage/GoogleDriveProvider.ts
+index 31a3cee..7c008b3 100644
+--- a/lib/storage/GoogleDriveProvider.ts
++++ b/lib/storage/GoogleDriveProvider.ts
+@@ -12,6 +12,17 @@ import type {
+  * N'utiliser QUE côté serveur (Route Handlers / Server Actions) — jamais
+  * importé dans un composant client. Les identifiants restent dans les
+  * variables d'environnement serveur (§24).
++ *
++ * IMPORTANT — pourquoi OAuth2 et pas un compte de service :
++ * Un compte de service Google n'a AUCUN quota de stockage sur "Mon Drive"
++ * (erreur `storageQuotaExceeded`, 403). Deux solutions existent :
++ *   1. Un Drive partagé ("Shared Drive") — nécessite Google Workspace.
++ *   2. OAuth2 "offline" avec un vrai compte Gmail — fonctionne avec un
++ *      compte Google gratuit classique, c'est la solution retenue ici.
++ * Le compte Gmail choisi doit être propriétaire (ou avoir un accès
++ * "Éditeur") du dossier racine "Bibliothèque scolaire Burkina" et de ses
++ * 4 sous-dossiers. Voir scripts/get-google-refresh-token.mjs pour obtenir
++ * GOOGLE_OAUTH_REFRESH_TOKEN une seule fois.
+  */
+ 
+ // Les 4 sous-dossiers doivent être créés une fois manuellement dans le
+@@ -24,12 +35,28 @@ const FOLDER_ENV_MAP: Record<StorageFolder, string> = {
+   REFUSES: process.env.GDRIVE_FOLDER_REFUSES!,
+ };
+ 
++let cachedAuth: InstanceType<typeof google.auth.OAuth2> | null = null;
++
+ function getAuth() {
+-  return new google.auth.JWT({
+-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+-    key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+-    scopes: ['https://www.googleapis.com/auth/drive'],
+-  });
++  if (cachedAuth) return cachedAuth;
++
++  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
++  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
++  const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
++
++  if (!clientId || !clientSecret || !refreshToken) {
++    throw new Error(
++      "Configuration Google Drive manquante : GOOGLE_OAUTH_CLIENT_ID, " +
++        'GOOGLE_OAUTH_CLIENT_SECRET et GOOGLE_OAUTH_REFRESH_TOKEN doivent être ' +
++        'définis (voir scripts/get-google-refresh-token.mjs).'
++    );
++  }
++
++  const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
++  oauth2Client.setCredentials({ refresh_token: refreshToken });
++
++  cachedAuth = oauth2Client;
++  return oauth2Client;
+ }
+ 
+ function getDrive() {
+@@ -60,6 +87,7 @@ export class GoogleDriveProvider implements StorageProvider {
+         body: Readable.from(buffer),
+       },
+       fields: 'id, webViewLink',
++      supportsAllDrives: true,
+     });
+ 
+     if (!res.data.id) {
+@@ -76,7 +104,7 @@ export class GoogleDriveProvider implements StorageProvider {
+     const drive = getDrive();
+ 
+     // Il faut connaître le(s) parent(s) actuel(s) pour les retirer.
+-    const file = await drive.files.get({ fileId, fields: 'parents' });
++    const file = await drive.files.get({ fileId, fields: 'parents', supportsAllDrives: true });
+     const previousParents = (file.data.parents ?? []).join(',');
+ 
+     await drive.files.update({
+@@ -84,6 +112,7 @@ export class GoogleDriveProvider implements StorageProvider {
+       addParents: FOLDER_ENV_MAP[toFolder],
+       removeParents: previousParents,
+       fields: 'id, parents',
++      supportsAllDrives: true,
+     });
+   }
+ 
+@@ -95,6 +124,7 @@ export class GoogleDriveProvider implements StorageProvider {
+     await drive.files.update({
+       fileId,
+       requestBody: { trashed: false, description: 'Archivé par Sujets BF' },
++      supportsAllDrives: true,
+     });
+   }
+ 
+@@ -103,6 +133,7 @@ export class GoogleDriveProvider implements StorageProvider {
+     const res = await drive.files.get({
+       fileId,
+       fields: 'id, name, mimeType, size, createdTime',
++      supportsAllDrives: true,
+     });
+ 
+     return {
+diff --git a/lib/supabase/server.ts b/lib/supabase/server.ts
+index 02f42ec..817a604 100644
+--- a/lib/supabase/server.ts
++++ b/lib/supabase/server.ts
+@@ -1,4 +1,5 @@
+ import { createServerClient, type CookieOptions } from '@supabase/ssr';
++import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+ import { cookies } from 'next/headers';
+ import type { Database } from '@/types/database';
+ 
+@@ -44,7 +45,6 @@ export function createClient() {
+  * après vérification explicite du rôle de l'utilisateur.
+  */
+ export function createAdminClient() {
+-  const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
+   return createSupabaseClient<Database>(
+     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+     process.env.SUPABASE_SERVICE_ROLE_KEY!,
+diff --git a/scripts/get-google-refresh-token.mjs b/scripts/get-google-refresh-token.mjs
+new file mode 100644
+index 0000000..726b837
+--- /dev/null
++++ b/scripts/get-google-refresh-token.mjs
+@@ -0,0 +1,66 @@
++// Script à lancer UNE SEULE FOIS en local pour obtenir un refresh token
++// OAuth2 Google Drive, à mettre dans GOOGLE_OAUTH_REFRESH_TOKEN.
++//
++// Prérequis (Google Cloud Console → APIs & Services) :
++//   1. Activer l'API "Google Drive API" sur ton projet.
++//   2. Créer un identifiant OAuth 2.0 de type "Application de bureau"
++//      (Desktop app) → tu obtiens un Client ID + Client Secret.
++//   3. Écran de consentement OAuth : ajouter ton propre compte Gmail
++//      (celui qui possède le dossier "Bibliothèque scolaire Burkina")
++//      comme "utilisateur de test" si l'app est en mode "Testing".
++//
++// Utilisation :
++//   GOOGLE_OAUTH_CLIENT_ID=... GOOGLE_OAUTH_CLIENT_SECRET=... \
++//     node scripts/get-google-refresh-token.mjs
++//
++// Le script ouvre une URL à coller dans ton navigateur, tu te connectes
++// avec le compte Gmail propriétaire du Drive, tu autorises l'accès, puis
++// tu colles le code affiché dans le terminal. Le refresh token s'affiche
++// à la fin — colle-le dans .env.local (GOOGLE_OAUTH_REFRESH_TOKEN) et sur
++// Vercel (Environment Variables).
++
++import { google } from 'googleapis';
++import readline from 'node:readline/promises';
++
++const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
++const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
++
++if (!clientId || !clientSecret) {
++  console.error(
++    'Définis GOOGLE_OAUTH_CLIENT_ID et GOOGLE_OAUTH_CLIENT_SECRET avant de lancer ce script.'
++  );
++  process.exit(1);
++}
++
++// "urn:ietf:wg:oauth:2.0:oob" = flux "copier-coller" sans serveur local,
++// le plus simple pour un script one-shot.
++const REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob';
++
++const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, REDIRECT_URI);
++
++const authUrl = oauth2Client.generateAuthUrl({
++  access_type: 'offline', // indispensable pour obtenir un refresh_token
++  prompt: 'consent', // force le renvoi du refresh_token même si déjà autorisé avant
++  scope: ['https://www.googleapis.com/auth/drive'],
++});
++
++console.log('\n1. Ouvre cette URL dans ton navigateur, connecte-toi avec le compte');
++console.log('   Gmail propriétaire du dossier "Bibliothèque scolaire Burkina" :\n');
++console.log(authUrl);
++console.log('\n2. Autorise l\'accès, puis colle ici le code affiché par Google.\n');
++
++const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
++const code = await rl.question('Code : ');
++rl.close();
++
++const { tokens } = await oauth2Client.getToken(code.trim());
++
++console.log('\n✅ Voilà ton refresh token — copie-le dans .env.local et sur Vercel :\n');
++console.log(`GOOGLE_OAUTH_REFRESH_TOKEN=${tokens.refresh_token}\n`);
++
++if (!tokens.refresh_token) {
++  console.warn(
++    "⚠️  Aucun refresh_token retourné. Si tu avais déjà autorisé cette app avant, " +
++      'révoque l\'accès sur https://myaccount.google.com/permissions puis relance ce script.'
++  );
++}
+diff --git a/tailwind.config.ts b/tailwind.config.ts
+index f373f83..89ee562 100644
+--- a/tailwind.config.ts
++++ b/tailwind.config.ts
+@@ -8,9 +8,14 @@ const config: Config = {
+   theme: {
+     extend: {
+       colors: {
++        // Palette inspirée de l'archive scolaire burkinabè : un or/ambre
++        // (papier ancien, tampon administratif) sur un vert profond qui
++        // évoque le drapeau du Burkina Faso — remplace l'ancien bleu
++        // générique utilisé partout dans le code.
+         brand: {
+-          DEFAULT: '#1d4ed8',
+-          dark: '#0f172a',
++          DEFAULT: '#C8891F', // ambre — CTA, liens actifs
++          deep: '#123B2E', // vert profond — header, hero, texte de lien sur fond clair
++          light: '#F4E9D6', // fond crème clair (cartes en surbrillance, badges)
+         },
+       },
+     },

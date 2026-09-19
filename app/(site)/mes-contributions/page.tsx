@@ -19,7 +19,7 @@ export default async function MesContributionsPage() {
     <main className="mx-auto max-w-4xl px-6 py-12">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mes contributions</h1>
-        <Link href="/contribuer" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white">
+        <Link href="/contribuer" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-deep">
           Contribuer
         </Link>
       </div>

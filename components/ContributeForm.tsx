@@ -375,7 +375,7 @@ function StepIndicator({ step }: { step: Step }) {
         <div key={s.n} className="flex items-center gap-2">
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full ${
-              step >= s.n ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'
+              step >= s.n ? 'bg-brand text-white' : 'bg-slate-200 text-slate-500'
             }`}
           >
             {s.n}

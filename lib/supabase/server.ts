@@ -1,4 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/database';
 
@@ -44,7 +45,6 @@ export function createClient() {
  * après vérification explicite du rôle de l'utilisateur.
  */
 export function createAdminClient() {
-  const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
   return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

@@ -33,7 +33,7 @@ export default function ConnexionPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6">
       <h1 className="text-2xl font-bold">Connexion</h1>
       <p className="mt-1 text-sm text-slate-600">
         Accédez à votre compte pour continuer.
@@ -46,7 +46,7 @@ export default function ConnexionPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         <input
           type="password"
@@ -54,7 +54,7 @@ export default function ConnexionPage() {
           placeholder="Mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2"
+          className="w-full rounded-md border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
 
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -62,7 +62,7 @@ export default function ConnexionPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-blue-600 py-2.5 font-medium text-white disabled:opacity-60"
+          className="w-full rounded-md bg-brand py-2.5 font-medium text-white transition hover:bg-brand-deep disabled:opacity-60"
         >
           {loading ? 'Connexion…' : 'Se connecter'}
         </button>
@@ -70,8 +70,8 @@ export default function ConnexionPage() {
 
       <p className="mt-4 text-sm text-slate-600">
         Pas de compte ?{' '}
-        <Link href="/inscription" className="text-blue-600">
-          S'inscrire
+        <Link href="/inscription" className="font-medium text-brand-deep hover:underline">
+          S&apos;inscrire
         </Link>
       </p>
     </main>

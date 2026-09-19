@@ -3,43 +3,25 @@ import Link from 'next/link';
 export default function HomePage() {
   return (
     <main>
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-semibold">Sujets BF</span>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/">Accueil</Link>
-            <Link href="/connexion">Se connecter</Link>
-            <Link
-              href="/inscription"
-              className="rounded-md bg-blue-600 px-3 py-1.5 font-medium"
-            >
-              S'inscrire
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <section className="bg-slate-950 text-white">
+      <section className="bg-brand-deep text-white">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <h1 className="text-3xl font-bold leading-tight md:text-4xl">
-            Aidez-nous à préserver les anciens{' '}
-            <span className="text-blue-400">sujets scolaires</span> du Burkina
-            Faso.
+          <h1 className="max-w-2xl text-3xl font-bold leading-tight md:text-4xl">
+            Aidez-nous à préserver les anciens sujets scolaires du Burkina Faso.
           </h1>
-          <p className="mt-4 max-w-2xl text-slate-300">
+          <p className="mt-4 max-w-2xl text-white/80">
             Vous possédez un ancien sujet du CEP, du BEPC ou du BAC ? Envoyez-le.
-            Chaque document sera vérifié avant d'être intégré aux archives.
+            Chaque document sera vérifié avant d&apos;être intégré aux archives.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/contribuer"
-              className="rounded-md bg-blue-600 px-5 py-2.5 font-medium"
+              className="rounded-md bg-brand px-5 py-2.5 font-medium text-brand-deep transition hover:bg-brand/90"
             >
               Contribuer
             </Link>
             <Link
               href="/mes-contributions"
-              className="rounded-md bg-slate-800 px-5 py-2.5 font-medium"
+              className="rounded-md border border-white/30 px-5 py-2.5 font-medium text-white transition hover:bg-white/10"
             >
               Mes contributions
             </Link>
