@@ -36,9 +36,16 @@ export async function middleware(request: NextRequest) {
   const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
 
   if (isProtected && !user) {
+    // Un cookie Supabase présent mais un utilisateur nul signifie que la
+    // session a expiré (refresh token invalide/périmé) plutôt que "jamais
+    // connecté" — on distingue les deux pour afficher le bon écran.
+    const hadSession = request.cookies.getAll().some((c) => c.name.startsWith('sb-'));
+
     const url = request.nextUrl.clone();
-    url.pathname = '/connexion';
-    url.searchParams.set('next', request.nextUrl.pathname);
+    url.pathname = hadSession ? '/session-expiree' : '/connexion';
+    if (!hadSession) {
+      url.searchParams.set('next', request.nextUrl.pathname);
+    }
     return NextResponse.redirect(url);
   }
 

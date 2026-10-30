@@ -8,14 +8,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palette inspirée de l'archive scolaire burkinabè : un or/ambre
-        // (papier ancien, tampon administratif) sur un vert profond qui
-        // évoque le drapeau du Burkina Faso — remplace l'ancien bleu
-        // générique utilisé partout dans le code.
+        // Palette alignée sur la maquette fournie : bleu principal sur
+        // fond clair, cartes blanches, pastilles de statut.
         brand: {
-          DEFAULT: '#C8891F', // ambre — CTA, liens actifs
-          deep: '#123B2E', // vert profond — header, hero, texte de lien sur fond clair
-          light: '#F4E9D6', // fond crème clair (cartes en surbrillance, badges)
+          DEFAULT: '#2F6FED', // bleu principal — CTA, liens, icônes actives
+          dark: '#1D4ED8', // hover / états actifs
+          light: '#EEF3FF', // fonds de pastille, bannières info
+        },
+        status: {
+          pending: '#D97706', // en attente
+          success: '#16A34A', // validé
+          info: '#2563EB', // en cours / en vérification
+          danger: '#DC2626', // refusé
+          warn: '#9333EA', // correction demandée
         },
       },
     },
